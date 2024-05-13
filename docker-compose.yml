@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  sql_lab_server_backend:
+    container_name: sql_lab_server_backend
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: npm run dev
+    depends_on:
+      - sql_lab_server_db
+
+  sql_lab_server_db:
+    image: mysql:8.0.37
+    restart: always
+    container_name: sql_lab_server_db
+    environment:
+      MYSQL_ROOT_PASSWORD: SqlLab2024!
+      MYSQL_DATABASE: sql_lab_cms
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./docker-data/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - sql_lab_server_db_data_v2:/var/lib/mysql
+
+volumes:
+  sql_lab_server_db_data_v2:
+
