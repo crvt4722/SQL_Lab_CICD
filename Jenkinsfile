@@ -1,18 +1,34 @@
 pipeline {
     agent any
     environment {
-        DOCKER_REGISTRY = 'index.docker.io'
-        DOCKER_CREDENTIALS_ID = 'dckr_pat_eh56hEXLPuNVQv7q09Lg7vOCROQ'
-        REPO_NAME = 'crvt4722'
-        IMAGE_NAME = 'sql_lab_server'
+        DOCKER_CREDENTIALS_ID = 'docker_access_token'  // ID of your Docker Hub credentials in Jenkins
+        REPO_NAME = 'crvt4722'  // Docker Hub repository name
+        IMAGE_NAME = 'sql_lab_server'  // Image name
     }
     stages {
+        stage('Set Tag Name') {
+            steps {
+                script {
+                    if (env.GIT_BRANCH && env.GIT_BRANCH.startsWith('refs/tags/')) {
+                        env.TAG_NAME = env.GIT_BRANCH.replace('refs/tags/', '')
+                    }
+                }
+            }
+        }
         stage('Build and Push Image') {
             steps {
                 script {
-                    def dockerImage = docker.build("${REPO_NAME}/${IMAGE_NAME}:${env.GIT_TAG}")
-                    docker.withRegistry("https://${DOCKER_REGISTRY}", DOCKER_CREDENTIALS_ID) {
-                        dockerImage.push()
+                    if (env.TAG_NAME) {
+                        // Build the Docker image
+                        def builtImage = docker.build("${REPO_NAME}/${IMAGE_NAME}:${env.TAG_NAME}")
+                        
+                        // Login to Docker Hub
+                        docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
+                            // Push the Docker image
+                            builtImage.push()
+                        }
+                    } else {
+                        echo "No tag found, not building or pushing an image."
                     }
                 }
             }
