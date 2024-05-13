@@ -9,9 +9,14 @@ pipeline {
         stage('Set Tag Name') {
             steps {
                 script {
-                    if (env.BRANCH_NAME && env.BRANCH_NAME.startsWith('refs/tags/')) {
-                        env.TAG_NAME = env.BRANCH_NAME.replace('refs/tags/', '')
-                    }
+                    echo 'Pull new code'
+		    sh(script: 'git pull')
+                }
+                script {
+                    def tagVersion = sh(script: 'git tag --sort version:refname | tail -1', returnStdout: true).trim()
+                    env.TAG_NAME = tagVersion
+                    echo "Tag version: ${env.TAG_NAME}"
+                }
                 }
             }
         }
