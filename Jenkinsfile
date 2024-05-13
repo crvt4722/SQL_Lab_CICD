@@ -6,17 +6,18 @@ pipeline {
         IMAGE_NAME = 'sql_lab_server'  // Image name
     }
     stages {
-        stage('Set Tag Name') {
+        stage('Prepare Environment') {
             steps {
                 script {
                     echo 'Pull new code'
-		    sh(script: 'git pull')
-                }
-                script {
-                    def tagVersion = sh(script: 'git tag --sort version:refname | tail -1', returnStdout: true).trim()
-                    env.TAG_NAME = tagVersion
-                    echo "Tag version: ${env.TAG_NAME}"
-                }
+                    sh 'git pull'
+                    def tagVersion = sh(script: 'git describe --tags $(git rev-list --tags --max-count=1)', returnStdout: true).trim()
+                    if (tagVersion) {
+                        env.TAG_NAME = tagVersion
+                        echo "Latest tag version: ${env.TAG_NAME}"
+                    } else {
+                        error("No tags found in the repository.")
+                    }
                 }
             }
         }
@@ -32,11 +33,18 @@ pipeline {
                             // Push the Docker image
                             builtImage.push()
                         }
+                        echo "Image pushed: ${REPO_NAME}/${IMAGE_NAME}:${env.TAG_NAME}"
                     } else {
-                        echo "No tag found, not building or pushing an image."
+                        echo "No tag specified, not building or pushing an image."
                     }
                 }
             }
+        }
+    }
+    post {
+        always {
+            echo 'Cleaning up workspace'
+            cleanWs()
         }
     }
 }
