@@ -10,6 +10,7 @@ pipeline {
             steps {
                 script {
                     echo 'Pull new code'
+                    sh 'git checkout main'
                     sh 'git pull'
                     def tagVersion = sh(script: 'git describe --tags $(git rev-list --tags --max-count=1)', returnStdout: true).trim()
                     if (tagVersion) {
