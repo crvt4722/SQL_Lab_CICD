@@ -9,8 +9,8 @@ pipeline {
         stage('Set Tag Name') {
             steps {
                 script {
-                    if (env.GIT_BRANCH && env.GIT_BRANCH.startsWith('refs/tags/')) {
-                        env.TAG_NAME = env.GIT_BRANCH.replace('refs/tags/', '')
+                    if (env.BRANCH_NAME && env.BRANCH_NAME.startsWith('refs/tags/')) {
+                        env.TAG_NAME = env.BRANCH_NAME.replace('refs/tags/', '')
                     }
                 }
             }
