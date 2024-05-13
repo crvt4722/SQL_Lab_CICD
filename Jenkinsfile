@@ -9,8 +9,8 @@ pipeline {
         stage('Prepare Environment') {
             steps {
                 script {
-                    echo 'Pull new code'
-                    sh 'git pull'
+  //                  echo 'Pull new code'
+//                    sh 'git pull'
                     def tagVersion = sh(script: 'git describe --tags $(git rev-list --tags --max-count=1)', returnStdout: true).trim()
                     if (tagVersion) {
                         env.TAG_NAME = tagVersion
