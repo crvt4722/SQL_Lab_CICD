@@ -19,4 +19,4 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           # Optional
           OPENAI_API_ENDPOINT: https://mkp-api.fptcloud.com
-          MODEL: DeepSeek-R1
+          MODEL: Qwen2.5-Coder-32B-Instruct
